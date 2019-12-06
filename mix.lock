@@ -1,0 +1,7 @@
+%{
+  "aho_corasick": {:hex, :aho_corasick, "0.0.1", "1c477fc17d9ae0509b2c7b56e15ff6009acd7c945773979de99857bef72bf661", [:mix], [], "hexpm"},
+  "csv": {:hex, :csv, "2.3.1", "9ce11eff5a74a07baf3787b2b19dd798724d29a9c3a492a41df39f6af686da0e", [:mix], [{:parallel_stream, "~> 1.0.4", [hex: :parallel_stream, repo: "hexpm", optional: false]}], "hexpm"},
+  "mutex": {:hex, :mutex, "1.1.2", "db5de0d889d1f7f76d3c040cd9db908fa69055af3d3ffa57472fb03863db9ea3", [:mix], [], "hexpm"},
+  "parallel_stream": {:hex, :parallel_stream, "1.0.6", "b967be2b23f0f6787fab7ed681b4c45a215a81481fb62b01a5b750fa8f30f76c", [:mix], [], "hexpm"},
+  "uuid": {:hex, :uuid, "1.1.8", "e22fc04499de0de3ed1116b770c7737779f226ceefa0badb3592e64d5cfb4eb9", [:mix], [], "hexpm"},
+}
