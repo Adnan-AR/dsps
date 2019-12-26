@@ -7,8 +7,8 @@ defmodule Dsps.MixProject do
       version: "0.1.0",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env),
-      build_embedded: Mix.env() == :prod,
-      start_permanent: Mix.env() == :prod,
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
       deps: deps()
     ]
   end
@@ -26,7 +26,8 @@ defmodule Dsps.MixProject do
     [
       {:aho_corasick, "~> 0.0.1"},
       {:csv, "~> 2.3"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:fast_ngram, "~> 1.0"}
     ]
   end
   # Add dependecies paths depending on build env

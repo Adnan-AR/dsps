@@ -1,4 +1,4 @@
-defmodule RabinKarp_2 do
+defmodule RabinKarp do
   @moduledoc """
   Usage:
 
@@ -72,17 +72,31 @@ defmodule RabinKarp_2 do
   search for needles in a string
   """ 
   def search(needles, string) do
-    lengths = MapSet.to_list(needles.lengths) 
-    string_length = String.length(string)
-    Helpers.Parallel.pmap(lengths, fn x ->
-      __MODULE__.match(needles, string, x, string_length, 0) end)
-      |> Enum.flat_map(fn x -> x end)
-     
-    |> MapSet.new    
+    ngrams = FastNgram.letter_ngrams(string, needles.min_length)
+    ngrams_pos = ngrams |> indexify
+    ngrams
+    |> MapSet.new
+    |> MapSet.intersection(needles.patterns)
+    |> Enum.map(fn x -> {x, Map.get(ngrams_pos, x)} end)
+    |> MapSet.new
   end
-    
+
+  # map the positions of all n-grams
+  def indexify(enumerable) do
+    enumerable
+    |> Enum.with_index(1)
+    |> Enum.reduce(%{}, fn {k, v}, acc -> Map.update(
+      acc, k, [v], fn x -> Enum.concat([v], x) end) end)
+  end
+  
   # Get a substring from a string based on position and length
   defp slice(string, start_pos, length),
     do: String.slice(string, start_pos..start_pos+length-1)
        
 end
+
+
+
+
+
+      

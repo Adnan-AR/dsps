@@ -1,9 +1,8 @@
-defmodule StringMatching.Server do
+defmodule AhoCorasick.Server do
   @moduledoc """
-  DspsSystem using GenServer.
+  String matching worker as a GenServer (Aho-Corasick).
   """
-  @behaviour StringMatching.Interface.Behaviour
-  @sm_api Application.fetch_env!(:dsps, :sm_algorithm)
+  @behaviour StringMatching.Server.Interface.Behaviour
   use GenServer
   require Logger
   
@@ -11,7 +10,7 @@ defmodule StringMatching.Server do
   API: start an StringMatching process
   """
   def start_link(name) do
-    Logger.info("StringMatching automaton created: #{name}")
+    Logger.info("StringMatching server created: #{name}")
     GenServer.start_link(__MODULE__, :ok, name: via(name))
   end
 
@@ -48,7 +47,7 @@ defmodule StringMatching.Server do
   end
 
   @doc """
-  Callback: terminate StringMatching worker
+  API: terminate StringMatching worker
   """
   def terminate(reason, name) do
     Logger.info("terminate: #{name} with reason: #{inspect reason}")
@@ -59,7 +58,7 @@ defmodule StringMatching.Server do
   """
   def handle_cast({:update, patterns}, _state) do
     # Replace the automaton
-    state = @sm_api.new(patterns)
+    state = AhoCorasick.new(patterns)
     # reply
     {:noreply, state}
   end
@@ -74,8 +73,8 @@ defmodule StringMatching.Server do
   Search for patterns in a string
   """
   def handle_call({:search, _name, string}, _from, state) do
-    results = @sm_api.search(state, string)
-    |> MapSet.to_list    
+    results = AhoCorasick.search(state, string)
+    |> MapSet.to_list
     {:reply, results, state}
   end
 

@@ -2,7 +2,6 @@ import Config
 
 # Setting String search algorithm
 config :dsps,
-  sm_algorithm: AhoCorasick,
   nodes: %{
     :masters =>
       ["master@ip-10-0-10-138.eu-west-3.compute.internal"],
@@ -15,7 +14,7 @@ config :dsps,
     :clients =>
       ["client@ip-10-0-10-85.eu-west-3.compute.internal"]
   },
-  nodes1: %{
+  nodes_: %{
     :masters =>
       ["node1@adnans-macbook-pro.home"],
     :workers =>
@@ -30,6 +29,6 @@ config :dsps,
 
 # Setting loaded module depending on the env, Mock if test
 case Mix.env do
-  :test -> config :dsps, string_matching: StringMatching.Server
-  _ -> config :dsps, string_matching: StringMatching.Server
+  :test -> config :dsps, string_matching: RabinKarp.Server
+  _ -> config :dsps, string_matching: RabinKarp.Server
 end

@@ -83,6 +83,24 @@ defmodule RabinKarp.Test do
     end
   end
 
+  describe "add a list of needles to patterns" do
+    test "simple test" do
+      string_1 = "test1"
+      string_2 = "bigtest1"
+      string_hash_1 = Helpers.Hash.hash_string(string_1)
+      string_hash_2 = Helpers.Hash.hash_string(string_2)
+      expected_needles = %Needles{
+	lengths: MapSet.new([5, 8]),
+	min_length: 5,
+	patterns: %{
+	  string_hash_1 => string_1,
+	  string_hash_2 => string_2}
+      }
+      needles = RabinKarp.add(RabinKarp.new, ["bigtest1","test1"])
+      assert expected_needles == needles
+    end
+  end
+
   describe "Match any needle in the string" do
     test "Simple test, should be developed (edge cases)" do
       string = "I am adnan and building dsps system"

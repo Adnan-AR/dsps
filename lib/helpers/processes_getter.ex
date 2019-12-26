@@ -2,7 +2,7 @@ defmodule Helpers.ProcessesGetter do
   @moduledoc"""
   Getter of running workers and supervisor in a supervisor tree
   """
-  alias StringMatching.Interface, as: Worker
+  alias StringMatching.Server.Interface, as: Worker
   alias StringMatching.Metadata.Registry, as: AgentRegsitry
   alias StringMatching.Metadata, as: Agent
   alias StringMatching.Servers.Registry, as: ServersRegistry

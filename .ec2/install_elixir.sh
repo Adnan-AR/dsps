@@ -25,11 +25,12 @@ asdf local erlang 22.1
 ips=(
     ec2-user@ec2-35-180-0-116.eu-west-3.compute.amazonaws.com
     ec2-user@ec2-35-180-231-19.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-6-41.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-68-44.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-181-56-178.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-15-188-193-212.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-9-204.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-35-180-253-208.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-15-188-33-150.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-35-180-89-194.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-52-47-190-193.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-35-180-125-223.eu-west-3.compute.amazonaws.com
+
 )
 for ip in "${ips[@]}"; do
     sudo scp -i /Users/adnan/Qemotion/keys/dsps-key.pem -r\

@@ -2,7 +2,7 @@ defmodule StringMatching.ServerTest do
   use ExUnit.Case, async: true
   alias StringMatching.Interface, as: Worker
   alias StringMatching.Dsupervisor, as: Dsupervisor
-  doctest StringMatching.Server
+  doctest AhoCorasick.Server
 
   describe "update/2" do
     test "update Aha-Corasick automaton with new patterns" do

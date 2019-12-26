@@ -3,13 +3,13 @@ defmodule Main_local do
     Master.Constructor.start(:whatever,:whatever)
     Cluster.Orchestrer.connect_nodes
     Cluster.Orchestrer.create_sm_servers(
-      "node2@adnans-macbook-pro.home", 100)
+      "node2@adnans-macbook-pro.home", 10)
     Cluster.Orchestrer.create_sm_servers(
-      "node3@adnans-macbook-pro.home", 100)
+      "node3@adnans-macbook-pro.home", 15)
     Cluster.Orchestrer.create_sm_servers(
-      "node4@adnans-macbook-pro.home", 100)
+      "node4@adnans-macbook-pro.home", 10)
     Cluster.Orchestrer.create_sm_servers(
-      "node6@adnans-macbook-pro.home", 100)
+      "node6@adnans-macbook-pro.home", 1)
     Process.sleep(1000)
     Cluster.Sharders.Dsupervisor.start_cluster_sharder("1")
     Cluster.Sharders.Dsupervisor.start_cluster_sharder("2")
@@ -17,29 +17,29 @@ defmodule Main_local do
   end
   
   def read_dic1 do
-    "/Users/adnan/Qemotion/dsps_system/tmp_data/new_aaedited.csv"
+    "/Users/adnan/Qemotion/dsps_system/tmp_data2/1000k_words_1.csv"
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode!
-    |> Enum.take(10000)
+    |> Enum.take(5000)
     |> Enum.map(fn x -> Enum.at(x,0) end)
     |> Cluster.Sharder.dispatch_patterns("1")
   end
   def read_dic2 do
-    "/Users/adnan/Qemotion/dsps_system/tmp_data/new_abedited.csv"
+    "/Users/adnan/Qemotion/dsps_system/tmp_data2/1000k_words_2.csv"
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode!
-    |> Enum.take(10000)
+    |> Enum.take(5000)
     |> Enum.map(fn x -> Enum.at(x,0) end)
     |> Cluster.Sharder.dispatch_patterns("2")
   end
   def read_dic3 do
-    "/Users/adnan/Qemotion/dsps_system/tmp_data/new_acedited.csv"
+    "/Users/adnan/Qemotion/dsps_system/tmp_data2/1000k_words_3.csv"
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode!
-    |> Enum.take(10000)
+    |> Enum.take(5000)
     |> Enum.map(fn x -> Enum.at(x,0) end)
     |> Cluster.Sharder.dispatch_patterns("3")
   end
@@ -55,9 +55,9 @@ defmodule Main_local do
 
   def launch_match do
     data = __MODULE__.extand(
-      ["  need not caravanned   need not caravanned  vines need not need not deaned ksess bzez 2youra ayre bhal shaghleh akalet khara wala abta2 men hek khara system b zabre"], 1000)
+      ["  need not caravanned   need not caravanned  vines need not need not deaned ksess not all glided  bzez 2youra ayre bhal shaghleh"], 1)
     IO.inspect(length(data))
-    __MODULE__.pmap(
+    Helpers.Parallel.pmap(
       data, fn x->Client.EndPoint.match(x) end) 
   end
 

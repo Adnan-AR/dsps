@@ -8,6 +8,22 @@ defmodule Main_remote do
      "/Users/adnan/Qemotion/dsps_system/tmp_data2")
   end
 
+  # Create servers on a specific machine
+  def test_remote do
+    Master.Constructor.start(:whatever,:whatever)
+    Cluster.Orchestrer.connect_nodes
+    Cluster.Orchestrer.create_sm_servers(
+      "worker1@ip-10-0-10-234.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker2@ip-10-0-10-130.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker3@ip-10-0-10-208.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker4@ip-10-0-10-24.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker5@ip-10-0-10-213.eu-west-3.compute.internal", 10)
+  end
+    
   # Create String Matching servers
   def create_sm_servers(how_many) do
     Application.fetch_env!(:dsps, :nodes)

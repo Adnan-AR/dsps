@@ -3,7 +3,7 @@ defmodule StringMatching.Dsupervisor do
   Dynamic supervisor of StringMatching processes
   """
   use DynamicSupervisor
-  alias StringMatching.Interface, as: Worker
+  alias StringMatching.Server.Interface, as: Worker
   alias StringMatching.Metadata, as: Agent
   alias Node.Metadata, as: MetaAgent
   @name __MODULE__

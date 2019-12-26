@@ -1,10 +1,6 @@
 defmodule Needles do
-  @docmodule """
-  Patterns data structure definition
-  """
-
   defstruct [
-    patterns: Map.new(),
+    patterns: MapSet.new(),
     lengths: MapSet.new(),
     min_length: nil
   ]
@@ -14,9 +10,10 @@ defmodule Needles do
 
   * `:patterns`: contains the patterns of string matching system
   * `:lengths`: contains the different lengths of patterns
+  * `:min_length`: minimum length in the needles
   """
   @type t :: %__MODULE__{
-    patterns: Map.t,
+    patterns: MapSet.t,
     lengths: MapSet.t,
     min_length: nil | pos_integer
   }

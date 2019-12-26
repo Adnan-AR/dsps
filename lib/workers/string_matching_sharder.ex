@@ -6,7 +6,7 @@ defmodule StringMatching.Sharder do
   """
   use GenServer
   require Logger
-  alias StringMatching.Interface, as: Worker
+  alias StringMatching.Server.Interface, as: Worker
   alias StringMatching.Metadata, as: Agent
   alias Node.Metadata, as: MetaAgent
   @name __MODULE__
@@ -67,15 +67,19 @@ defmodule StringMatching.Sharder do
     new_patterns = Agent.get(:patterns, smallest_shard_name)
     |> Enum.concat([pattern])
     # Update workers
-    Worker.update(smallest_shard_name, new_patterns);
+    # Worker.update(smallest_shard_name, new_patterns);
+    Worker.update(smallest_shard_name, pattern);
     # Update Node Metadata
     MetaAgent.add_patterns(pattern)
     # Modify the metadata of the worker (modify the agent)
-    last_pattern = Enum.take(new_patterns, -1)
-    size_patterns = Enum.count(new_patterns)
+    # last_pattern = Enum.take(pattern, -1)
+    # size_patterns = Enum.count(new_patterns)
+    size_patterns = Agent.get(:size, smallest_shard_name) + 1
     Agent.set(
-      smallest_shard_name,{new_patterns, size_patterns, last_pattern})
-    {:noreply, new_patterns}
+      # smallest_shard_name,{new_patterns, size_patterns, last_pattern})
+      smallest_shard_name,{new_patterns, size_patterns, pattern})
+    {:noreply, pattern}
+    # {:noreply, new_patterns}
   end
 
   @doc """
@@ -86,7 +90,9 @@ defmodule StringMatching.Sharder do
     Logger.info("Refeeding all automatons")
     patterns
     |> chunk_patterns
-    |> Enum.each(fn {worker_name, x} -> Worker.update(worker_name,x)
+    |> Enum.each(fn {worker_name, x} ->
+      Worker.update(worker_name,x);
+      Agent.set(worker_name, {x, length(x), Enum.take(x, -1)})
     end)
     MetaAgent.add_patterns(patterns)
     {:noreply, patterns}
