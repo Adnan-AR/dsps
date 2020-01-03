@@ -22,6 +22,16 @@ defmodule Main_remote do
       "worker4@ip-10-0-10-24.eu-west-3.compute.internal", 10)
     Cluster.Orchestrer.create_sm_servers(
       "worker5@ip-10-0-10-213.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker6@ip-10-0-10-188.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker7@ip-10-0-10-58.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker8@ip-10-0-10-152.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker9@ip-10-0-10-22.eu-west-3.compute.internal", 10)
+    Cluster.Orchestrer.create_sm_servers(
+      "worker10@ip-10-0-10-161.eu-west-3.compute.internal", 10)
   end
     
   # Create String Matching servers
