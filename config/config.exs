@@ -10,7 +10,12 @@ config :dsps,
        "worker2@ip-10-0-10-130.eu-west-3.compute.internal",
        "worker3@ip-10-0-10-208.eu-west-3.compute.internal",
        "worker4@ip-10-0-10-24.eu-west-3.compute.internal",
-       "worker5@ip-10-0-10-213.eu-west-3.compute.internal"],
+       "worker5@ip-10-0-10-213.eu-west-3.compute.internal",
+       "worker6@ip-10-0-10-188.eu-west-3.compute.internal",
+       "worker7@ip-10-0-10-58.eu-west-3.compute.internal",
+       "worker8@ip-10-0-10-152.eu-west-3.compute.internal",
+       "worker9@ip-10-0-10-22.eu-west-3.compute.internal",
+       "worker10@ip-10-0-10-161.eu-west-3.compute.internal"],
     :clients =>
       ["client@ip-10-0-10-85.eu-west-3.compute.internal"]
   },
