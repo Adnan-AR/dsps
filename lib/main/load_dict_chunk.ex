@@ -4,7 +4,15 @@ defmodule DictLoader do
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode!
-    # |> Enum.take(100000)
+    |> Enum.map(fn x -> Enum.at(x,0) end)
+    |> StringMatching.Sharder.dispatch_patterns
+  end
+
+  def load_chunk_remote(file_name) do
+    "/home/ec2-user/opt/dsps_system/tmp_dict/#{file_name}"
+    |> Path.expand(__DIR__)
+    |> File.stream!
+    |> CSV.decode!
     |> Enum.map(fn x -> Enum.at(x,0) end)
     |> StringMatching.Sharder.dispatch_patterns
   end
