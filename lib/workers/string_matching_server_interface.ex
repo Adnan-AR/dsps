@@ -5,7 +5,8 @@ defmodule StringMatching.Server.Interface do
   
   @sm_server Application.fetch_env!(:dsps, :string_matching)
   defmodule Behaviour do
-    @callback start_link(String.t) :: {:ok, Pid.t()} | {:error, term}
+    @callback start_link(String.t, Integer.t) :: {:ok, Pid.t()}
+                                                 | {:error, term}
     @callback stop(String.t) :: :ok | {:error, String.t()}
     @callback crash(String.t) :: :ok | {:erro, String.t()}
     #@callback add(String.t, String.t) :: :ok | {:error, String.t()}
@@ -15,8 +16,8 @@ defmodule StringMatching.Server.Interface do
                                                 | {:error, String.t()}
   end
 
-  @spec start_link(String.t) :: {:ok, Pid.t()} | {:error, term}
-  def start_link(name), do: @sm_server.start_link(name)
+  @spec start_link(String.t, Integer.t) :: {:ok, Pid.t()} | {:error, term}
+  def start_link(name, length), do: @sm_server.start_link(name, length)
   @spec stop(String.t) :: :ok | {:error, String.t()}
   def stop(name), do: @sm_server.stop(name)
   @spec crash(String.t) :: :ok | {:erro, String.t()}

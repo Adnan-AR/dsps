@@ -20,38 +20,42 @@ defmodule RabinKarp do
   Construct a Needles group
   """
   def new, do: %Needles{}
+  def new(length), do: %Needles{patterns: MapSet.new(), length: length} 
     
   @doc """
-  Add new non blank pattern
+  Add new non blank pattern or patterns (length should be unique)
   """
   def add(needles, string) when is_blank(string), do: needles
   def add(needles, string) when is_binary(string) do
     string_length = String.length(string)
-    # string_hash = Helpers.Hash.hash_string(string)
-    %Needles{
-      patterns: MapSet.put(needles.patterns, string),
-      lengths: MapSet.put(needles.lengths, string_length),
-      min_length: min(needles.min_length, string_length)
-    }
+    if string_length != needles.length && needles.length != nil do
+      IO.warn("Invalid string length #{string}")
+      needles
+    else
+      %Needles{
+	patterns: MapSet.put(needles.patterns, string),
+	length: string_length
+      }
+    end
   end
-  def add(needles, strings) do
-    string_lengths = strings
-    |> Enum.map(fn x -> String.length(x) end)
-    min_length = string_lengths |> Enum.min
-    new_patterns = strings
-    |> Enum.reduce(
-      MapSet.new, fn x, acc -> MapSet.put(acc, x) end)
-    new_lengths = strings
-    |> Enum.reduce(
-      MapSet.new, fn x, acc -> MapSet.put(acc, String.length(x)) end)
-    %Needles{
-      patterns: new_patterns,
-      lengths: new_lengths,
-      min_length: min(needles.min_length, min_length)
-    }
+  def add(needles, strings, length) do
+    if length != needles.length && needles.length != nil do
+      IO.warn(
+	"This needle groupe cannot support this length #{length}")
+      needles
+    else
+      # filter strings that have different length
+      patterns = strings
+      |> Enum.filter(fn x -> String.length(x) == length end)
+      new_patterns = patterns
+      |> Enum.reduce(
+	needles.patterns, fn x, acc -> MapSet.put(acc, x) end)
+      %Needles{patterns: new_patterns, length: length}
+    end
   end
   @doc """
   match for a pattern in a string (recursive)
+  TODO (optimize)
   """
   def match(_needles, _string, pattern_length, string_length, position)
     when string_length - position < pattern_length, do: []
@@ -72,7 +76,7 @@ defmodule RabinKarp do
   search for needles in a string
   """ 
   def search(needles, string) do
-    ngrams = FastNgram.letter_ngrams(string, needles.min_length)
+    ngrams = FastNgram.letter_ngrams(string, needles.length)
     ngrams_pos = ngrams |> indexify
     ngrams
     |> MapSet.new

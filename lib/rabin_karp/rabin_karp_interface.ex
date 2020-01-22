@@ -5,7 +5,8 @@ defmodule RabinKarp.Interface do
   
   defmodule Behaviour do
     @callback new :: Needles.t
-    @callback add(Needles.t, String.t | list(String.t) ) :: Needles.t
+    @callback add(Needles.t, String.t) :: Needles.t
+    @callback add(Needles.t, list(String.t), Integer.t) :: Needles.t
     @callback match(Needles.t, String.t, Integer.t,
       Integer.t, Integer.t) :: List.t
     @callback search(Needles.t, String.t) :: MapSet.t
@@ -14,8 +15,12 @@ defmodule RabinKarp.Interface do
   @spec new :: Needles.t
   def new, do: RabinKarp.new
   
-  @spec add(Needles.t, String.t | list(String.t)) :: Needles.t
+  @spec add(Needles.t, String.t) :: Needles.t
   def add(needles, string), do: RabinKarp.add(needles, string)
+
+  @spec add(Needles.t, list(String.t), Integer.t) :: Needles.t
+  def add(needles, strings, length), do: RabinKarp.add(
+	needles, strings, length)
   
   @spec match(Needles.t, String.t, Integer.t,
     Integer.t, Integer.t) :: List.t

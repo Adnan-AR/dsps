@@ -24,12 +24,12 @@ defmodule StringMatching.Dsupervisor do
   @doc """
   Start and supervise StringMatching server
   """
-  def start_string_matching(child_name) do
-    param = {Worker, :start_link, [child_name]}
+  def start_string_matching(child_name, pattern_length) do
+    param = {Worker, :start_link, [child_name, pattern_length]}
     spec = %{id: Worker, start: param, restart: :transient}
     DynamicSupervisor.start_child(__MODULE__, spec)
     # Create an agent for this worker
-    param = {Agent, :start_link, [child_name, {[], 0, :empty}]}
+    param = {Agent, :start_link, [child_name, {[], 0, :empty, pattern_length}]}
     spec = %{id: Agent, start: param, restart: :transient}
     DynamicSupervisor.start_child(__MODULE__, spec)
     # Update the metadata of this node

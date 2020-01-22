@@ -27,5 +27,5 @@ defmodule StringMatching.ServerTest do
       expected = [{"test1", 6, 5}, {"test2", 25, 5}, {"test3", 42, 5}]
       assert expected == results
     end
-  end
+  end 
 end

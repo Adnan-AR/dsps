@@ -43,19 +43,13 @@ defmodule Cluster.Orchestrer do
   API (recursive): Create a number of String Matching servers 
   on a specific node
   """
-  def create_sm_servers(node_lname, how_many)  when how_many <= 1 do
-    GenServer.cast(@name, {:create_sm_server, node_lname})
+  def create_sm_servers(node_lname, length, how_many)  when how_many <= 1 do
+    GenServer.cast(@name, {:create_sm_server,  node_lname, length})
   end
-  def create_sm_servers(node_lname, how_many)  do
-    GenServer.cast(@name, {:create_sm_server, node_lname})
-    create_sm_servers(node_lname, how_many - 1) 
+  def create_sm_servers(node_lname, length, how_many)  do
+    GenServer.cast(@name, {:create_sm_server, node_lname, length})
+    create_sm_servers(node_lname, length, how_many - 1) 
   end
-  
-  @doc """
-  API: Get workers list
-  """
-  def get_workers,
-    do: GenServer.call(@name, {:get_worker_nodes})
     
   @doc """
   Callback to connect to a list of nodes
@@ -100,18 +94,41 @@ defmodule Cluster.Orchestrer do
   Callback: Create a number of String Matching
   servers on a specific node
   """
-  def handle_cast({:create_sm_server, node_lname}, _state) do
+  def handle_cast({:create_sm_server, node_lname, length}, _state) do
     id = UUID.uuid4() 
     node_lname
-    |> String.to_atom
-    |> :rpc.call(StringMatching.Dsupervisor, :start_string_matching,[id])
+    |> :rpc.call(
+      StringMatching.Dsupervisor, :start_string_matching, [id, length])
     Logger.info("Creating String Matching server on #{node_lname}")
     {:noreply, node_lname}
   end
 
-  @doc """
-  Callback to handle search using all automatons
-  """
-  def handle_call({:get_worker_nodes}, _from, state),
-    do: {:reply, Node.list, state}
+  # This is to create a conveninent number of string matching servers
+  # depending on volume of words
+  def init_workers(nb_words_char) do
+    workers = Helpers.ProcessesGetter.get_workers(:fetch_config)
+    nb_words_char
+    |> Enum.reduce(%{}, fn {x, y}, acc -> Map.put(
+      acc, x, Helpers.LogisticGrowth.compute_number(y)) end)
+    |> Enum.each(fn {x, y} -> distribute_workers(workers, x, y) end)
+  end
+
+  # Distribute string matchin servers on worker nodes evenly
+  # E.g 4 workers and 10 string matching servers
+  # W W W W
+  # S S S S
+  # S S S S
+  # S S
+  def distribute_workers(workers, length, how_many) when how_many > 0 do
+    workers_num = length(workers)
+    init_workers_num = div(how_many, workers_num)
+    create = fn x ->
+      create_sm_servers(x, length, init_workers_num) end
+    add = fn x ->
+      create_sm_servers(x, length, 1) end 
+    if init_workers_num > 0, do: workers |> Enum.each(create)
+    workers
+    |> Enum.take(rem(how_many, workers_num))
+    |> Enum.each(add)
+  end  
 end

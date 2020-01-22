@@ -9,9 +9,9 @@ defmodule RabinKarp.Server do
   @doc """
   API: start an StringMatching process
   """
-  def start_link(name) do
+  def start_link(name, length) do
     Logger.info("StringMatching server created: #{name}")
-    GenServer.start_link(__MODULE__, :ok, name: via(name))
+    GenServer.start_link(__MODULE__, length, name: via(name))
   end
 
   @doc """
@@ -42,9 +42,10 @@ defmodule RabinKarp.Server do
   @doc """
   Callback: Init the OTP server
   """
-  def init(name) do
-    Logger.info("Starting #{inspect(name)}")
-    {:ok, RabinKarp.new}
+  def init(length) do
+    Logger.info(
+      "Starting Rabin-Karp server [length: #{inspect(length)}]")
+    {:ok, RabinKarp.new(length)}
   end
 
   @doc """
@@ -57,8 +58,12 @@ defmodule RabinKarp.Server do
   @doc """
   Create StringMatching automaton
   """
-  def handle_cast({:add, pattern}, state) do
+  def handle_cast({:add, pattern}, state) when is_binary(pattern) do
     new_state = RabinKarp.add(state, pattern)
+    {:noreply, new_state}
+  end
+  def handle_cast({:add, pattern}, state) do
+    new_state = RabinKarp.add(state, pattern, state.length)
     {:noreply, new_state}
   end
 

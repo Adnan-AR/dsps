@@ -8,8 +8,8 @@ defmodule StringMatching.Metadata do
   @doc """
   Start the Metadata base
   """
-  def start_link(name, {patterns, size, last_world}) do
-    fn -> {patterns, size, last_world} end
+  def start_link(name, {patterns, size, last_world, patterns_length}) do
+    fn -> {patterns, size, last_world, patterns_length} end
     |> Agent.start_link(name: via(name))
   end
 
@@ -17,21 +17,28 @@ defmodule StringMatching.Metadata do
   Get the state of a certain StringMatching worker (server)
   """
   def get(name),
-    do: Agent.get(via(name), fn{x,y,z} -> {x,y,z} end)
+    do: Agent.get(via(name), fn{x, y, z, w} -> {x, y, z, w} end)
   def get(:size, name),
-    do: Agent.get(via(name), fn{_,x,_} -> x end)
+    do: Agent.get(via(name), fn{_, x, _, _} -> x end)
   def get(:last_word, name),
-    do: Agent.get(via(name), fn{_,_,x} -> x end)
+    do: Agent.get(via(name), fn{_, _, x, _} -> x end)
   def get(:patterns, name),
-    do: Agent.get(via(name), fn{x,_,_} -> x end)
+    do: Agent.get(via(name), fn{x, _, _, _} -> x end)
+  def get(:length, name),
+    do: Agent.get(via(name), fn{_, _, _, x} -> x end)
 
   @doc """
   Set the state of a certain StringMatching worker (server)
   """
   def set(name, {patterns, size, last_world}) do
-    #IO.inspect(patterns)
     handle_update = fn
-      {_, _, _} -> {patterns, size, last_world}
+      {_, _, _, length} -> {patterns, size, last_world, length}
+    end
+    Agent.update(via(name), handle_update)
+  end
+  def set(name, length) do
+    handle_update = fn
+      {x, y, z, _} -> {x, y, z, length}
     end
     Agent.update(via(name), handle_update)
   end

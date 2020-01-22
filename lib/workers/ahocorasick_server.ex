@@ -9,7 +9,7 @@ defmodule AhoCorasick.Server do
   @doc """
   API: start an StringMatching process
   """
-  def start_link(name) do
+  def start_link(name, _length) do
     Logger.info("StringMatching server created: #{name}")
     GenServer.start_link(__MODULE__, :ok, name: via(name))
   end

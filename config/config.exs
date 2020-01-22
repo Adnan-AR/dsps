@@ -2,7 +2,7 @@ import Config
 
 # Setting String search algorithm
 config :dsps,
-  nodes: %{
+  nodes_: %{
     :masters =>
       ["master@ip-10-0-10-138.eu-west-3.compute.internal"],
     :workers =>
@@ -19,7 +19,7 @@ config :dsps,
     :clients =>
       ["client@ip-10-0-10-85.eu-west-3.compute.internal"]
   },
-  nodes_: %{
+  nodes: %{
     :masters =>
       ["node1@adnans-macbook-pro.home"],
     :workers =>

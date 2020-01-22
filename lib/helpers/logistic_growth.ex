@@ -7,6 +7,7 @@ defmodule Helpers.LogisticGrowth do
   @doc """
   Compute the number of servers by the number of words (cf.
   logistic growth function)
+  # TODO: LogisticGrowth to be optimized too slow on large numbers
   """
   def compute_number(nb_words, r \\ 1.0e-5, k \\ 10) do
     List.duplicate(1, nb_words)
