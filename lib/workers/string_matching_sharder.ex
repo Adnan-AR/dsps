@@ -4,17 +4,17 @@ defmodule StringMatching.Sharder do
   StringMatching Servers that exist in the Regsitry via 
   GenServer
   """
+  @behaviour StringMatching.Sharder.Interface.Behaviour
   use GenServer
   require Logger
   alias StringMatching.Server.Interface, as: Worker
   alias StringMatching.Metadata, as: Agent
-  alias Node.Metadata, as: MetaAgent
   @name __MODULE__
   @registry StringMatching.Servers.Registry
   @supervisor StringMatching.Dsupervisor
   
   @doc """
-  Start the sharder
+  API: Start the sharder
   """
   def start_link(_arg),
     do: GenServer.start_link(__MODULE__, :ok, name: @name)
@@ -24,6 +24,16 @@ defmodule StringMatching.Sharder do
   """
   def init(:ok),
     do: {:ok, %{}}
+
+  @doc """
+  API: stop the sharder
+  """
+  def stop(name), do: GenServer.stop(@name)
+ 
+  @doc """
+  API: crash
+  """
+  def crash(name), do: GenServer.cast(@name, :raise)
 
   @doc """
   API: feed all StringMatching automaton with patterns, it resets
@@ -46,14 +56,12 @@ defmodule StringMatching.Sharder do
     do: GenServer.call(@name, {:search, string})
 
   @doc """
-  Callback to handle feeding specific automaton
+  Callback to handle feeding specific needles state
   """
   def handle_cast({:local_dispatch, patterns, worker_name}, _state) do
     Logger.info("Refeeding automatons #{worker_name}")
     Worker.update(worker_name, patterns);
-    MetaAgent.add_patterns(patterns);
-    Agent.set(worker_name,
-      {patterns, length(patterns), Enum.take(patterns, -1)})
+    Agent.add_patterns(worker_name, patterns)
     {:noreply, patterns}
   end
 
@@ -62,26 +70,16 @@ defmodule StringMatching.Sharder do
   reviewed
   """
   def handle_cast({:local_dispatch, pattern}, _state) when is_binary(pattern) do
-    # Get the smallest shard
-    smallest_shard_name = get_smallest_shard(@supervisor)
+    length = String.length(pattern)
+    # Get the smallest shard of a specific length
+    smallest_shard_name = @supervisor
+    |> get_smallest_shard(length)
     Logger.info("Adding '#{pattern}' to #{smallest_shard_name}")
-    # Get existing patterns
-    new_patterns = Agent.get(:patterns, smallest_shard_name)
-    |> Enum.concat([pattern])
     # Update workers
-    # Worker.update(smallest_shard_name, new_patterns);
     Worker.update(smallest_shard_name, pattern);
-    # Update Node Metadata
-    MetaAgent.add_patterns(pattern)
-    # Modify the metadata of the worker (modify the agent)
-    # last_pattern = Enum.take(pattern, -1)
-    # size_patterns = Enum.count(new_patterns)
-    size_patterns = Agent.get(:size, smallest_shard_name) + 1
-    Agent.set(
-      # smallest_shard_name,{new_patterns, size_patterns, last_pattern})
-      smallest_shard_name,{new_patterns, size_patterns, pattern})
+    # Update Server metadata
+    Agent.add_patterns(smallest_shard_name, pattern)
     {:noreply, pattern}
-    # {:noreply, new_patterns}
   end
 
   @doc """
@@ -89,14 +87,19 @@ defmodule StringMatching.Sharder do
   reviewed
   """
   def handle_cast({:local_dispatch, patterns}, _state) do
-    Logger.info("Refeeding smallest automatons")
+    Logger.info("Sharding...")
+    # Group patterns by length and prepare them to be sharded
     patterns
-    |> chunk_patterns
-    |> Enum.each(fn {worker_name, x} ->
-      Worker.update(worker_name,x);
-      Agent.set(worker_name, {x, length(x), Enum.take(x, -1)})
+    |> Helpers.Hash.groupby_length
+    # Balance shards
+    |> Enum.each(fn {x, y} ->
+      {min_size, _} = get_smallest_sizes(@supervisor, x)
+      (fn -> rebalance(y, min_size, x) end).()
+      # Update each shard
+      |> Enum.each(fn {{_, worker_name}, x} ->
+        Worker.update(worker_name, x)
+        Agent.add_patterns(worker_name, x) end)
     end)
-    MetaAgent.add_patterns(patterns)
     {:noreply, patterns}
   end
 
@@ -113,43 +116,51 @@ defmodule StringMatching.Sharder do
     {:reply, results, state}
   end
 
-  # Chunck a list
-  defp chunk_patterns(patterns_list) do
-    workers_count = @registry |> Registry.count
-    workers = @supervisor |> Helpers.ProcessesGetter.get_workers
-    every = patterns_list
-    |> Enum.count
-    |> Kernel./(workers_count)
-    |> ceil
-    sub_patterns = patterns_list |> Enum.chunk_every(every)
-    Enum.zip(workers, sub_patterns) |> Enum.into(%{})
-  end
-
-  # Chunck a list
-  def chunk_patterns_rabin(patterns_list, min_sizes, length) do    
-    # Get the difference between the sizes of the 
-    diff = fn
-      {x, y} -> y - x
-      {_} -> 0 end
-    size_diff = diff.(min_sizes)
-    # Get smallest workers (by size not by length)
-    workers = @supervisor |> get_smallest_shards(length)
+  # Resharding, the alogirthm used in this founction:
+  # 1 - We take the size of the smallest shard (min_size)
+  # 2 - We take the n last needle of each shard whose size in S
+  # where n = S - min_size
+  # 3 - Concatenate the results of second step in a list
+  # 4 - rechunk the list from step 4 uniformally to all shards
+  def rebalance(patterns_list, min_size, length) do
+    # Get server of a specific length
+    workers = Helpers.ProcessesGetter.get_agents(@supervisor)
+    |> Enum.map(fn x -> {Agent.get(:length, x), x} end)
+    |> Enum.filter(fn {l, name} -> l == length end)
+    # Take the last n elements of each needles and concatenate the
+    # results in a new list
+    redis_list = workers |> Enum.reduce([], fn {_len, worker}, acc ->
+      Agent.get(:patterns, worker)
+      |> Enum.take(min_size - Agent.get(:size, worker))
+      |> Enum.concat(acc) end)
+    # Remove `to be redistributed list` from workers
+    Enum.each(
+      workers, fn {l, name} ->
+	Worker.remove(name, redis_list)
+	Agent.remove_patterns(name, redis_list)
+      end)
+    # Concatenate all the last elements with 
+    new_patterns = redis_list |> Enum.concat(patterns_list)
+    # workers count
     workers_count = length(workers)
-    every = patterns_list
+    # Chunk patterns into rebalanced workers
+    every = new_patterns
     |> Enum.count
     |> Kernel./(workers_count)
     |> ceil
-    sub_patterns = patterns_list |> Enum.chunk_every(every)
+    sub_patterns = new_patterns |> Enum.chunk_every(every)
     Enum.zip(workers, sub_patterns) |> Enum.into(%{})
   end
 
-  defp get_smallest_shard(supervisor_id) do
+  defp get_smallest_shard(supervisor_id, length) do
     Helpers.ProcessesGetter.get_agents(supervisor_id)
-    |> Enum.map(fn x -> {Agent.get(:size,x), x} end)
+    |> Enum.map(fn x -> {Agent.get(:length,x), x} end)
+    |> Enum.filter(fn {l, name} -> l == length end)
+    |> Enum.map(fn {_l, name} -> {Agent.get(:size,name), name} end)
     |> Enum.min
     |> (fn {_, worker_name} -> worker_name end).()
   end
-
+  
   # Get the first and the second smallest workers of a certain size
   def get_smallest_sizes(supervisor_id, pattern_length) do
     local_workers = Helpers.ProcessesGetter.get_agents(supervisor_id)
@@ -158,33 +169,29 @@ defmodule StringMatching.Sharder do
     |> Enum.map(fn x -> Agent.get(:size, x) end)
     |> Enum.sort |> Enum.uniq
     |> Enum.take(2) |> List.to_tuple
+    |> (fn
+      {x1, x2} -> {x1, x2}
+      {x1} -> {x1, x1}
+      {} -> {0,0} end).()
+  end
+
+  # Get total number of patterns by length in the node
+  def count_patterns_bylength(supervisor_id, length) do
+    local_workers = Helpers.ProcessesGetter.get_agents(supervisor_id)
+    |> Enum.filter(fn x -> Agent.get(:length, x) == length end)
+    |> Enum.reduce(0, fn x, acc -> Agent.get(:size, x) + acc end)
   end
   
-  def get_smallest_shards(supervisor_id, pattern_length) do
-    local_workers = Helpers.ProcessesGetter.get_agents(supervisor_id)
-    length_workers = local_workers
-    |> Enum.map(fn x -> {Agent.get(:length, x), x} end)
-    # TODO: optimize (smallest workers of a certain pattern size)
-    smallest_size = length_workers
-    |> Enum.filter(fn {y, x} -> y == pattern_length end)
-    |> Enum.map(fn {y, x} -> Agent.get(:size, x) end)
-    |> Enum.min
-    length_workers
-    |> Enum.filter(fn  {y, x} ->  y == pattern_length end)
-  end
-
   # Check if a pattern is a member of worker node (all workers under
   # this node)
-  def is_there(pattern) do
-    exists = fn x -> Agent.get(:patterns, x)
-      |> Enum.member?(pattern)
+  def is_there(pattern) when is_binary(pattern) do
+    pattern_length = String.length(pattern)
+    exists = fn x ->
+      Agent.get(:patterns, x)
+      |> MapSet.member?(pattern)
     end
-    Helpers.ProcessesGetter.get_agents(@supervisor)
+    Node.Servers.get
+    |> Map.get(pattern_length, [])
     |> Enum.any?(exists)
   end
-
-  # check the minimum of couple (used in chunking)
-  defp min_tuple({x, y}) when x > y, do: y
-  defp min_tuple({x, y}), do: x
-  defp min_tuple({x}), do: nil
 end

@@ -24,10 +24,12 @@ defmodule Dsps.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:aho_corasick, "~> 0.0.1"},
       {:csv, "~> 2.3"},
       {:uuid, "~> 1.1"},
-      {:fast_ngram, "~> 1.0"}
+      {:fast_ngram, "~> 1.0"},
+      {:erlport, "~> 0.10.1"},
+      {:cowboy, "~> 1.0.0"},
+      {:poison, "~> 3.1"}
     ]
   end
   # Add dependecies paths depending on build env

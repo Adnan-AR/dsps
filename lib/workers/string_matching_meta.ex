@@ -8,8 +8,12 @@ defmodule StringMatching.Metadata do
   @doc """
   Start the Metadata base
   """
-  def start_link(name, {patterns, size, last_world, patterns_length}) do
-    fn -> {patterns, size, last_world, patterns_length} end
+  def start_link(name, {patterns, length}) do
+    fn ->
+      patterns =  patterns
+      |> Enum.filter(fn x -> String.length(x) == length  end)
+      |> MapSet.new
+      {patterns, MapSet.size(patterns), Enum.at(patterns,-1), length} end
     |> Agent.start_link(name: via(name))
   end
 
@@ -28,20 +32,50 @@ defmodule StringMatching.Metadata do
     do: Agent.get(via(name), fn{_, _, _, x} -> x end)
 
   @doc """
-  Set the state of a certain StringMatching worker (server)
+  Add one pattern  
   """
-  def set(name, {patterns, size, last_world}) do
-    handle_update = fn
-      {_, _, _, length} -> {patterns, size, last_world, length}
-    end
-    Agent.update(via(name), handle_update)
+  def add_patterns(name, pattern) when is_binary(pattern) do
+    # p stands for patterns
+    # s stands for size
+    # l stands for length
+    string_length = String.length(pattern)
+    handle_add = fn
+      {p, s, _last_world, l} when l == string_length ->
+	patterns = MapSet.put(p, pattern)
+        {patterns, MapSet.size(patterns), pattern, l}
+      {p, s, last_world, l} -> {p, s, last_world, l}
+    end 
+    Agent.update(via(name), handle_add)
   end
-  def set(name, length) do
-    handle_update = fn
-      {x, y, z, _} -> {x, y, z, length}
+  @doc """
+  Add list of patterns
+  """
+  # p_f stands for filtered patterns
+  def add_patterns(name, patterns) do
+    handle_add = fn
+      {p, s, last_world, l} ->
+	p_f = patterns
+        |> Enum.filter(fn x -> String.length(x) == l end)
+        |> MapSet.new
+        |> MapSet.union(p)
+        {p_f, MapSet.size(p_f), Enum.at(p_f,-1), l}
     end
-    Agent.update(via(name), handle_update)
+    Agent.update(via(name), handle_add)
   end
+
+  @doc """
+  Remove a list of patterns
+  """
+  def remove_patterns(name, patterns) do
+    handle_add = fn
+      {p, s, last_world, l} ->
+	patterns = patterns |> MapSet.new
+        new_p = MapSet.difference(p, patterns)
+      {new_p, MapSet.size(new_p), Enum.at(new_p, -1), l}
+    end
+    Agent.update(via(name), handle_add)
+  end
+  
   # Private: Register StringMatching processes under the supervisor pid
   defp via(name), do: StringMatching.Metadata.Registry.via(name)
 end

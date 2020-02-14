@@ -5,6 +5,7 @@ defmodule Helpers.ProcessesGetter do
   alias StringMatching.Server.Interface, as: Worker
   alias StringMatching.Metadata.Registry, as: AgentRegsitry
   alias StringMatching.Metadata, as: Agent
+  alias Node.Servers, as: MetaAgent
   alias StringMatching.Servers.Registry, as: ServersRegistry
   @nodes Application.fetch_env!(:dsps, :nodes)
   
@@ -39,7 +40,6 @@ defmodule Helpers.ProcessesGetter do
     |> Enum.filter(fn x -> Agent.get(:size, x) > 0 end)
   end
   
-
   @doc """
   Get agents a supervisor
   """

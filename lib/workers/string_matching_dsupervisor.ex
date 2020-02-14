@@ -5,7 +5,7 @@ defmodule StringMatching.Dsupervisor do
   use DynamicSupervisor
   alias StringMatching.Server.Interface, as: Worker
   alias StringMatching.Metadata, as: Agent
-  alias Node.Metadata, as: MetaAgent
+  alias Node.Servers, as: MetaAgent
   @name __MODULE__
 
   @doc """
@@ -29,10 +29,10 @@ defmodule StringMatching.Dsupervisor do
     spec = %{id: Worker, start: param, restart: :transient}
     DynamicSupervisor.start_child(__MODULE__, spec)
     # Create an agent for this worker
-    param = {Agent, :start_link, [child_name, {[], 0, :empty, pattern_length}]}
+    param = {Agent, :start_link, [child_name, {MapSet.new, pattern_length}]}
     spec = %{id: Agent, start: param, restart: :transient}
     DynamicSupervisor.start_child(__MODULE__, spec)
     # Update the metadata of this node
-    MetaAgent.add_server(child_name)
+    MetaAgent.add_server(child_name, pattern_length)
   end
 end

@@ -5,18 +5,20 @@ defmodule RabinKarp.Test do
 
   describe "create new needles group in a Rabon Karp system" do
     test "We should get the type Needles (empty)" do
+      length=10
       empty_needles = %Needles{
-	lengths: MapSet.new, min_length: nil, patterns: Map.new}
-      assert  empty_needles == RabinKarp.new
+	length: length, patterns: MapSet.new}
+      assert  empty_needles == RabinKarp.new(length)
     end
   end
 
   describe "add blank to the patterns" do
     test "needles should stay empty" do
-      needles = RabinKarp.new
+      length=10
+      needles = RabinKarp.new(length)
       needles = RabinKarp.add(needles, "")
       empty_needles = %Needles{
-	lengths: MapSet.new, min_length: nil, patterns: Map.new}
+	length: length, patterns: MapSet.new}
       assert empty_needles == needles
     end
   end
@@ -24,79 +26,43 @@ defmodule RabinKarp.Test do
   describe "add a needle to an empty patterns" do
     test "we should find emoty element in the needles" do
       string = "test1"
-      string_hash = Helpers.Hash.hash_string(string)
-      needles = RabinKarp.new
+      needles = String.length(string) |> RabinKarp.new
       needles = RabinKarp.add(needles, string)
       expected_needles = %Needles{
-	lengths: MapSet.new([5]),
-	min_length: 5,
-	patterns: %{string_hash => string}}
+	length: String.length(string),
+	patterns: MapSet.new([string])}
       assert expected_needles == needles
     end
   end
 
-  describe "add a needle with smaller length to the patterns" do
-    test "Needles min length should be modified" do
-      string_1 = "test1"
-      string_2 = "min1"
-      string_hash_1 = Helpers.Hash.hash_string(string_1)
-      string_hash_2 = Helpers.Hash.hash_string(string_2)
-      needles = %Needles{
-	lengths: MapSet.new([5]),
-	min_length: 5,
-	patterns: %{string_hash_1 => string_1}
-      }
-      needles = RabinKarp.add(needles, "min1")
+  describe "add a needle to a needles group with bad length" do
+    test "we should find emoty element in the needles" do
+      string = "test1"
+      length = 10
+      needles = length |> RabinKarp.new
+      needles = RabinKarp.add(needles, string)
       expected_needles = %Needles{
-	lengths: MapSet.new([5,4]),
-	min_length: 4,
-	patterns: %{
-	  string_hash_1 => string_1,
-	  string_hash_2 => string_2
-	}
-      }
+	length: length,
+	patterns: MapSet.new}
       assert expected_needles == needles
     end
   end
 
-  describe "add a needle with bigger length to the patterns" do
-    test "Needles min length should stay the same" do
-      string_1 = "test1"
-      string_2 = "bigtest1"
-      string_hash_1 = Helpers.Hash.hash_string(string_1)
-      string_hash_2 = Helpers.Hash.hash_string(string_2)
-      needles = %Needles{
-	lengths: MapSet.new([5]),
-	min_length: 5,
-	patterns: %{string_hash_1 => string_1}
-      }
-      needles = RabinKarp.add(needles, "bigtest1")
-      expected_needles = %Needles{
-	lengths: MapSet.new([5,8]),
-	min_length: 5,
-	patterns: %{
-	  string_hash_1 => string_1,
-	  string_hash_2 => string_2
-	}
-      }
-      assert expected_needles == needles
-    end
-  end
-
-  describe "add a list of needles to patterns" do
+  describe "add a list of patterns to needles" do
     test "simple test" do
-      string_1 = "test1"
-      string_2 = "bigtest1"
-      string_hash_1 = Helpers.Hash.hash_string(string_1)
-      string_hash_2 = Helpers.Hash.hash_string(string_2)
+      s1 = "test1"
+      s2 = "test2"
+      s3 = "test3"
+      s4 = "test13"
+      s5 = "test4"
+      s6 = "test5"
+      l = 5
       expected_needles = %Needles{
-	lengths: MapSet.new([5, 8]),
-	min_length: 5,
-	patterns: %{
-	  string_hash_1 => string_1,
-	  string_hash_2 => string_2}
-      }
-      needles = RabinKarp.add(RabinKarp.new, ["bigtest1","test1"])
+	length: 5, patterns: MapSet.new([s1, s2, s3, s5, s6])}
+      needles = RabinKarp.new(l) |> RabinKarp.add([s1, s2, s3, s4])
+      needles = RabinKarp.add(needles, [s4, s5])
+      needles = RabinKarp.add(needles, s6)
+      needles = RabinKarp.add(needles, s4)
       assert expected_needles == needles
     end
   end
@@ -104,7 +70,8 @@ defmodule RabinKarp.Test do
   describe "Match any needle in the string" do
     test "Simple test, should be developed (edge cases)" do
       string = "I am adnan and building dsps system"
-      needles = RabinKarp.add(RabinKarp.new, "adnan")
+      l = 5
+      needles = RabinKarp.new(l) |> RabinKarp.add("adnan")
       expected_results= [{"adnan", 5, 9}]
       assert expected_results == RabinKarp.match(
 	needles, string, 5, String.length(string), 0)
@@ -114,17 +81,26 @@ defmodule RabinKarp.Test do
   describe "Match all needles in the string" do
     test "Simple test, should be developed (edge cases)" do
       string = "I am adnan and building dsps system and still adnan"
-      needles = RabinKarp.add(RabinKarp.new, "adnan")
-      |> RabinKarp.add("I am")
-      |> RabinKarp.add("dsps system")
-      |> RabinKarp.add("still_unkonwn")
-      expected_results= MapSet.new(
-	[
-	  {"I am", 0, 3}, {"adnan", 5, 9},
-	  {"adnan", 46, 50}, {"dsps system", 24, 34}
-	]
-      )
+      l = 5 
+      needles = RabinKarp.new(l) |> RabinKarp.add("adnan")
+      |> RabinKarp.add(["I am ", "dsps system", "still_unkonwn"])
+      expected_results = MapSet.new(
+	[{"I am ", [0]}, {"adnan", [46, 5]}])
       assert expected_results == RabinKarp.search(needles, string)
+    end
+  end
+
+  describe "Remove patterns from needles" do
+    test "Simple test, should be developed (edge cases)" do
+      remove_list = ["test5", "test6", "test7"]
+      l = 5 
+      needles = RabinKarp.new(l) |> RabinKarp.add("test1")
+      |> RabinKarp.add(["test2", "test3", "test4", "test5", "test6"])
+      |> RabinKarp.remove(remove_list)
+      expected_results = %Needles{
+	length: 5, patterns: MapSet.new(
+	  ["test1", "test2", "test3", "test4"])}
+      assert expected_results == needles
     end
   end
 

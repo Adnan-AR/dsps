@@ -1,6 +1,6 @@
 defmodule StringMatching.Server.Interface do
   @moduledoc """
-  Aho-Corasick server interface.
+  String matching server interface.
   """
   
   @sm_server Application.fetch_env!(:dsps, :string_matching)
@@ -9,9 +9,10 @@ defmodule StringMatching.Server.Interface do
                                                  | {:error, term}
     @callback stop(String.t) :: :ok | {:error, String.t()}
     @callback crash(String.t) :: :ok | {:erro, String.t()}
-    #@callback add(String.t, String.t) :: :ok | {:error, String.t()}
     @callback update(String.t, list(String.t) | String.t) :: :ok
-                                                | {:ok, String.t()}
+                                              | {:ok, String.t()}
+    @callback update(String.t, list(String.t)) :: :ok
+                                              | {:ok, String.t()}
     @callback search(String.t, String.t) :: MapSet.t()
                                                 | {:error, String.t()}
   end
@@ -24,8 +25,8 @@ defmodule StringMatching.Server.Interface do
   def crash(name), do: @sm_server.stop(name)
   @spec update(String.t, list(String.t) | String.t) :: :ok | {:ok, String.t()}
   def update(name, patterns), do: @sm_server.update(name, patterns)
+  @spec remove(String.t, list(String.t)) :: :ok | {:ok, String.t()}
+  def remove(name, patterns), do: @sm_server.remove(name, patterns)
   @spec search(String.t, String.t ) :: MapSet.t() | {:error, String.t()}
   def search(name, string), do: @sm_server.search(name, string)
-  #@spec add(String.t, String.t ) :: :ok | {:error, String.t()}
-  #def add(name, string), do: @sm_server.add(name, string)
 end

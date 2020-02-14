@@ -19,7 +19,6 @@ defmodule RabinKarp do
   @doc """
   Construct a Needles group
   """
-  def new, do: %Needles{}
   def new(length), do: %Needles{patterns: MapSet.new(), length: length} 
     
   @doc """
@@ -28,7 +27,7 @@ defmodule RabinKarp do
   def add(needles, string) when is_blank(string), do: needles
   def add(needles, string) when is_binary(string) do
     string_length = String.length(string)
-    if string_length != needles.length && needles.length != nil do
+    if string_length != needles.length do
       IO.warn("Invalid string length #{string}")
       needles
     else
@@ -38,21 +37,28 @@ defmodule RabinKarp do
       }
     end
   end
-  def add(needles, strings, length) do
-    if length != needles.length && needles.length != nil do
-      IO.warn(
-	"This needle groupe cannot support this length #{length}")
-      needles
-    else
-      # filter strings that have different length
-      patterns = strings
-      |> Enum.filter(fn x -> String.length(x) == length end)
-      new_patterns = patterns
-      |> Enum.reduce(
-	needles.patterns, fn x, acc -> MapSet.put(acc, x) end)
-      %Needles{patterns: new_patterns, length: length}
-    end
+  def add(needles, strings) do
+    # filter strings that have different length
+    patterns = strings
+    |> Enum.filter(fn x -> String.length(x) == needles.length end)
+    new_patterns = patterns |> MapSet.new
+    %Needles{
+      patterns: MapSet.union(new_patterns, needles.patterns),
+      length: needles.length}
   end
+
+  @doc """
+  Remove Patterns from needles
+  """
+  def remove(needles, strings) do
+    # filter strings that have different length
+    patterns = strings
+    |> MapSet.new
+    new_patterns = MapSet.difference(needles.patterns, patterns)
+    %Needles{patterns: new_patterns, length: needles.length}
+  end
+
+  
   @doc """
   match for a pattern in a string (recursive)
   TODO (optimize)
@@ -88,7 +94,7 @@ defmodule RabinKarp do
   # map the positions of all n-grams
   def indexify(enumerable) do
     enumerable
-    |> Enum.with_index(1)
+    |> Enum.with_index(0)
     |> Enum.reduce(%{}, fn {k, v}, acc -> Map.update(
       acc, k, [v], fn x -> Enum.concat([v], x) end) end)
   end

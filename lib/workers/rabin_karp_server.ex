@@ -15,7 +15,7 @@ defmodule RabinKarp.Server do
   end
 
   @doc """
-  API: stop the automaton
+  API: stop the string matching server
   """
   def stop(name), do: GenServer.stop(via(name))
  
@@ -25,10 +25,16 @@ defmodule RabinKarp.Server do
   def crash(name), do: GenServer.cast(via(name), :raise)
 
   @doc """
-  API: create automaton from patterns
+  API: add patterns to needles
   """
   def update(name, pattern),
     do: GenServer.cast(via(name), {:add, pattern})
+
+  @doc """
+  API: remove patterns from needles
+  """
+  def remove(name, pattern),
+    do: GenServer.cast(via(name), {:remove, pattern})
 
   @doc """
   API: search for patterns in a given string
@@ -56,14 +62,18 @@ defmodule RabinKarp.Server do
   end
   
   @doc """
-  Create StringMatching automaton
+  Callback: Add patterns to needles
   """
-  def handle_cast({:add, pattern}, state) when is_binary(pattern) do
+  def handle_cast({:add, pattern}, state)  do
     new_state = RabinKarp.add(state, pattern)
     {:noreply, new_state}
   end
-  def handle_cast({:add, pattern}, state) do
-    new_state = RabinKarp.add(state, pattern, state.length)
+
+  @doc """
+  Callback: Remove pattern form needles
+  """
+  def handle_cast({:remove, pattern}, state)  do
+    new_state = RabinKarp.remove(state, pattern)
     {:noreply, new_state}
   end
 

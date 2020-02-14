@@ -4,23 +4,22 @@ defmodule RabinKarp.Interface do
   """
   
   defmodule Behaviour do
-    @callback new :: Needles.t
+    @callback new(Integer.t) :: Needles.t
     @callback add(Needles.t, String.t) :: Needles.t
-    @callback add(Needles.t, list(String.t), Integer.t) :: Needles.t
+    @callback remove(Needles.t, list(String.t)) :: Needles.t
     @callback match(Needles.t, String.t, Integer.t,
       Integer.t, Integer.t) :: List.t
     @callback search(Needles.t, String.t) :: MapSet.t
   end
 
-  @spec new :: Needles.t
-  def new, do: RabinKarp.new
+  @spec new(Integer.t) :: Needles.t
+  def new(length), do: RabinKarp.new(length) 
   
   @spec add(Needles.t, String.t) :: Needles.t
   def add(needles, string), do: RabinKarp.add(needles, string)
 
-  @spec add(Needles.t, list(String.t), Integer.t) :: Needles.t
-  def add(needles, strings, length), do: RabinKarp.add(
-	needles, strings, length)
+  @spec remove(Needles.t, list(String.t)) :: Needles.t
+  def remove(needles, strings), do: RabinKarp.remove(needles, strings)
   
   @spec match(Needles.t, String.t, Integer.t,
     Integer.t, Integer.t) :: List.t

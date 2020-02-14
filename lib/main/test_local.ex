@@ -2,18 +2,10 @@ defmodule Main_local do
   def test_local_start do
     Master.Constructor.start(:whatever,:whatever)
     Cluster.Orchestrer.connect_nodes
-    Cluster.Orchestrer.create_sm_servers(
-      "node2@adnans-macbook-pro.home", 10)
-    Cluster.Orchestrer.create_sm_servers(
-      "node3@adnans-macbook-pro.home", 15)
-    Cluster.Orchestrer.create_sm_servers(
-      "node4@adnans-macbook-pro.home", 10)
-    Cluster.Orchestrer.create_sm_servers(
-      "node6@adnans-macbook-pro.home", 1)
     Process.sleep(1000)
+    Cluster.Orchestrer.init_workers(%{1=>1625790, 2=> 175741})
     Cluster.Sharders.Dsupervisor.start_cluster_sharder("1")
-    Cluster.Sharders.Dsupervisor.start_cluster_sharder("2")
-    Cluster.Sharders.Dsupervisor.start_cluster_sharder("3")
+    Cluster.Sharder.dispatch_patterns(["ks","zb","be","kh","fn"], "1")
   end
   
   def read_dic1 do

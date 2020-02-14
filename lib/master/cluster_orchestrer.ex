@@ -104,13 +104,22 @@ defmodule Cluster.Orchestrer do
   end
 
   # This is to create a conveninent number of string matching servers
-  # depending on volume of words
+  # depending on volume of words (non weighted distribution)
   def init_workers(nb_words_char) do
     workers = Helpers.ProcessesGetter.get_workers(:fetch_config)
     nb_words_char
-    |> Enum.reduce(%{}, fn {x, y}, acc -> Map.put(
-      acc, x, Helpers.LogisticGrowth.compute_number(y)) end)
-    |> Enum.each(fn {x, y} -> distribute_workers(workers, x, y) end)
+    |> Enum.reduce(%{}, fn {x, y}, acc ->
+      Map.put(acc, x, Helpers.LogisticGrowth.compute_number(y))
+    end)
+    |> Enum.each(fn {x, y} ->
+      # Create Patterns register
+      register_id = UUID.uuid4
+      Patterns.Register.start_link(register_id, x)
+      # Add this register to the main mapping
+      Patterns.Registers.Map.add_register(register_id, x)
+      # Distribute workers
+      distribute_workers(workers, x, y, :all)
+    end)
   end
 
   # Distribute string matchin servers on worker nodes evenly
@@ -119,7 +128,8 @@ defmodule Cluster.Orchestrer do
   # S S S S
   # S S S S
   # S S
-  def distribute_workers(workers, length, how_many) when how_many > 0 do
+  def distribute_workers(
+    workers, length, how_many, :distributed) when how_many > 0 do
     workers_num = length(workers)
     init_workers_num = div(how_many, workers_num)
     create = fn x ->
@@ -130,5 +140,17 @@ defmodule Cluster.Orchestrer do
     workers
     |> Enum.take(rem(how_many, workers_num))
     |> Enum.each(add)
-  end  
+  end
+  # Create the same numnber of string matching servers on all node
+  # E.g 4 workers and 3 string matching servers
+  # W W W W
+  # S S S S
+  # S S S S
+  # S S S S
+  def distribute_workers(
+    workers, length, how_many, :all) when how_many > 0 do
+    workers_num = length(workers)
+    Enum.each(workers, fn x ->
+      create_sm_servers(x, length, how_many) end)
+  end
 end

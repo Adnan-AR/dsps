@@ -9,7 +9,7 @@ defmodule Workers.Constructor do
     children = [
       { StringMatching.Dsupervisor, []},
       { StringMatching.Sharder, []},
-      { Node.Metadata, {0, 0, []}},
+      { Node.Servers, Map.new},
       { Registry, [keys: :unique, name: StringMatching.Servers.Registry]},
       { Registry, [keys: :unique, name: StringMatching.Metadata.Registry]}
     ]
