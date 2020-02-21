@@ -7,7 +7,6 @@ defmodule Cluster.Orchestrer do
   use GenServer
   require Logger
   @name __MODULE__
-  @nodes Application.fetch_env!(:dsps, :nodes)
   
   @doc """
   Start the orcherstrer
@@ -67,7 +66,8 @@ defmodule Cluster.Orchestrer do
   Callback to connect to a list of nodes
   """
   def handle_cast({:connect_nodes}, _state) do
-    nodes = Map.values(@nodes)
+    nodes = Application.fetch_env!(:dsps, :nodes)
+    |> Map.values
     |> Enum.flat_map(fn x -> x end)
     nodes
     |> Enum.map(fn x -> x

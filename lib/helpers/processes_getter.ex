@@ -7,7 +7,6 @@ defmodule Helpers.ProcessesGetter do
   alias StringMatching.Metadata, as: Agent
   alias Node.Servers, as: MetaAgent
   alias StringMatching.Servers.Registry, as: ServersRegistry
-  @nodes Application.fetch_env!(:dsps, :nodes)
   
   @doc """
   Get workers under a supervisor
@@ -17,7 +16,8 @@ defmodule Helpers.ProcessesGetter do
     connected_nodes = Node.list
     |> Enum.map(fn x -> Atom.to_string x end)
     |> MapSet.new
-    Map.fetch!(@nodes, :workers)
+    Application.fetch_env!(:dsps, "nodes.worker")
+    |> Map.fetch!(:workers)
     |> MapSet.new
     |> MapSet.intersection(connected_nodes)
     |> MapSet.to_list

@@ -9,14 +9,25 @@ defmodule Dsps.MixProject do
       elixirc_paths: elixirc_paths(Mix.env),
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      escript: escript(), # to build executable application (REMOVE)
+
+      # Release 
+      releases: [
+	dsps: [
+	  applications: [runtime_tools: :permanent],
+	  # Add runtime configuration (provide path to YAML file)
+	  config_providers: [{ConfigHandler,
+			      System.get_env("NODE_CONFIG_PATH")}]
+	]
+      ]
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Workers.Constructor, []},
+      mod: {Node.Starter, []},
       extra_applications: [:logger]
     ]
   end
@@ -29,9 +40,14 @@ defmodule Dsps.MixProject do
       {:fast_ngram, "~> 1.0"},
       {:erlport, "~> 0.10.1"},
       {:cowboy, "~> 1.0.0"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:yaml_elixir, "~> 2.4.0"}
     ]
   end
+
+  # Launch DSPS command line
+  defp escript, do: [main_module: DSPS.CLI]
+  
   # Add dependecies paths depending on build env
   defp elixirc_paths(:test), do: ["lib","test/fake"]
   defp elixirc_paths(_), do: ["lib"]

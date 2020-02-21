@@ -49,14 +49,22 @@ defmodule DictLoader do
     |> Helpers.Hash.countby_length
     |> Cluster.Orchestrer.init_workers
   end
+
+  def shard_init_2 do
+    Master.Constructor.start(:ok, :ok)
+    Cluster.Orchestrer.connect_nodes
+    Cluster.Sharders.Dsupervisor.start_cluster_sharder("1")
+    2..120 |> Enum.reduce(Map.new, fn x, acc -> Map.put(acc, x, 1000) end) |> Cluster.Orchestrer.init_workers
+  end
   
   def shard_file(file_name) do
-    patterns = "#{file_name}"
+    patterns = "../../#{file_name}"
     |> Path.expand(__DIR__)
     |> File.stream!
     |> CSV.decode!
     |> Enum.take(1000000)
     |> Enum.map(fn x -> Enum.at(x,0) end)
+    |> Enum.filter(fn x -> String.length(x) >= 2 end)
     |> Cluster.Sharder.dispatch_patterns("1")
   end
 

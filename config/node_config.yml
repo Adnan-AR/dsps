@@ -1,0 +1,64 @@
+---
+# ======================== Node Configuration ========================
+#
+#
+# Configure your node via this file. This template lists the most
+# important settings you may you want to configure for a production
+# cluster.
+#
+# ------------------------------ Cluster -----------------------------
+#
+# Use descriptive name for your cluster
+#
+cookie.name : my-cluster
+#
+# ------------------------------- Node -------------------------------
+#
+# Use descriptive name for your node
+#
+node.name : node-2
+#
+# Set node type (it could be multiple types)
+#
+node.type :
+  master: FALSE
+  worker: TRUE
+  client: TRUE
+#
+# ----------------------------- Network ------------------------------
+#
+# Set the IP of the node
+#
+# NOTE: Tested on a AWS Virtual Private Cloud, so private IPs are used
+#
+network.host: 192.168.0.1
+#
+# Erlang Virtual Machine Beam epmd port (TCP)
+port.erlang-communication:
+  lower: 9100
+  upper: 9155
+#
+# Erlang VM Beam epmd port (TCP)
+#
+port.beam: 4369
+#
+# Http port
+#
+port.http: 80
+#
+# ---------------------------- Discovery -----------------------------
+#
+# Initial list of node hosts and names to connect (only used by the
+# master node)
+#
+# NOTE: Tested on a AWS Virtual Private Cloud, so private IPs are used
+#
+nodes.workers:
+  - node-2@adnans-macbook-pro.home
+  - node-3@adnans-macbook-pro.home
+  - node-4@adnans-macbook-pro.home
+
+nodes.client:
+  - node2@adnans-macbook-pro.home
+#
+...

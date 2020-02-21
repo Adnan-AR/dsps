@@ -23,18 +23,18 @@ asdf local erlang 22.1
 
 #==================SCP project src to aws instances===================
 ips=(
-    ec2-user@ec2-35-180-0-116.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-231-19.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-125-97.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-251-164.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-15-188-185-214.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-45-21.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-228-79.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-15-188-33-252.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-52-47-78-5.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-90-230.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-52-47-77-41.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-35-180-83-35.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-35-180-197-193.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-35-180-231-19.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-15-188-89-46.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-35-180-251-164.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-15-188-185-214.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-35-180-45-21.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-35-180-228-79.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-15-188-33-252.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-52-47-78-5.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-52-47-82-122.eu-west-3.compute.amazonaws.com
+    ec2-user@ec2-15-188-193-143.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-35-180-83-35.eu-west-3.compute.amazonaws.com
 )
 for ip in "${ips[@]}"; do
     sudo scp -i /Users/adnan/Qemotion/keys/dsps-key.pem -r\

@@ -1,0 +1,10 @@
+> Env variables to be configured
+    - NODE_CONFIG_PATH: path to node configuration file
+    - $BEAM_PORT_MIN and $BEAM_PORT_MAX
+
+
+> In mix.exs (config provider):
+   - We should find a solution to load env var NODE_CONFIG_PATH
+   in the runtime and not during the buildtime
+
+> ALL nodes should be started before the master (To fix that)
