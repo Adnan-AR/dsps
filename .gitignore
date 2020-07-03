@@ -1,34 +1,101 @@
-# The directory Mix will write compiled artifacts to.
-/_build/
+# to keep the structure of the project (commit
+# some empty folders) we add .keep in these
+# folders
+#############################################
+!**/.keep
 
-# If you run "mix test --cover", coverage assets end up here.
-/cover/
+# Byte-compiled / optimized / DLL files
+#############################################
+__pycache__/
+*.py[cod]
+*$py.class
 
-# The directory Mix downloads your dependencies sources to.
-/deps/
+# C extensions
+#############################################
+*.so
 
-# Where third-party dependencies like ExDoc output generated docs.
-/doc/
+# Distribution / packaging
+#############################################
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Ignore .fetch files in case you like to edit your project deps locally.
-/.fetch
+# PyInstaller
+# Usually these files are written by a python script from a template
+# before PyInstaller builds the exe, so as to inject date/other infos into it.
+#############################################
+*.manifest
+*.spec
 
-# If the VM crashes, it generates a dump, let's ignore it too.
-erl_crash.dump
+# Installer log
+#############################################
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Also ignore archive artifacts (built via "mix archive.build").
-*.ez
+# Unit test / coverage reports
+#############################################
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
 
-# Ignore package tarball (built via "mix hex.build").
-dsps_system-*.tar
+# Translations
+#############################################
+*.mo
+*.pot
 
-# Ignore any csv file (such emotional dictionary)
-*.csv
+# Django stuff:
+*.log
 
-# DS_Store files specific to MacOS
-.DS_Store
+# Sphinx documentation
+#############################################
+docs/_build/
+!doc/build
+
+# PyBuilder
+#############################################
+target/
+
+# Specific
+#############################################
+.idea/
+VENV
+venv
+app/tools/play
 *.DS_Store
-
-# Emacs backup files
+.DS_Store
+!.keep
+tests
+tasks
 *~
 
+# Elastic Beanstalk Files
+#############################################
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+
+# Models & keys
+#############################################
+keys/jwt_key.txt
+
+# Data
+#############################################
