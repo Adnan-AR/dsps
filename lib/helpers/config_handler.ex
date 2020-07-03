@@ -29,7 +29,11 @@ defmodule ConfigHandler do
 	# node names
         node_name: Map.get(config_params, "node.name"),
 	# node type
-	node_type: Map.get(config_params, "node.type")
+	node_type: Map.get(config_params, "node.type"),
+	# workers
+	workers: Map.get(config_params, "nodes.worker"),
+	# clients
+	clients: Map.get(config_params, "nodes.client"),
       ]
     )
   end

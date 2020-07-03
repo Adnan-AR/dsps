@@ -66,9 +66,9 @@ defmodule Cluster.Orchestrer do
   Callback to connect to a list of nodes
   """
   def handle_cast({:connect_nodes}, _state) do
-    nodes = Application.fetch_env!(:dsps, :nodes)
-    |> Map.values
-    |> Enum.flat_map(fn x -> x end)
+    workers = Application.fetch_env!(:dsps, :workers)
+    nodes = Application.fetch_env!(:dsps, :clients)
+    |> Enum.concat(workers)
     nodes
     |> Enum.map(fn x -> x
     |> String.to_atom

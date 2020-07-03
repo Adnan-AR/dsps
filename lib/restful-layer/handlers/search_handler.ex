@@ -1,7 +1,7 @@
 defmodule SearchHandler do  
   def init(_type, req, _opts) do
     # Init Client
-    Client.Constructor.start(:ok,:ok)
+    # Client.Constructor.start(:ok,:ok)
     # nostate
     {:ok, req, :nostate}
   end

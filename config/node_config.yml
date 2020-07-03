@@ -10,19 +10,19 @@
 #
 # Use descriptive name for your cluster
 #
-cookie.name : my-cluster
+cookie.name: my-cluster
 #
 # ------------------------------- Node -------------------------------
 #
 # Use descriptive name for your node
 #
-node.name : node-2
+node.name: node-2
 #
 # Set node type (it could be multiple types)
 #
 node.type :
-  master: FALSE
-  worker: TRUE
+  master: TRUE
+  worker: FALSE
   client: TRUE
 #
 # ----------------------------- Network ------------------------------
@@ -53,12 +53,12 @@ port.http: 80
 #
 # NOTE: Tested on a AWS Virtual Private Cloud, so private IPs are used
 #
-nodes.workers:
-  - node-2@adnans-macbook-pro.home
+nodes.worker:
+  - node-1@adnans-macbook-pro.home
   - node-3@adnans-macbook-pro.home
   - node-4@adnans-macbook-pro.home
 
 nodes.client:
-  - node2@adnans-macbook-pro.home
+  - node-2@adnans-macbook-pro.home
 #
 ...

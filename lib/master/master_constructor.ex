@@ -2,10 +2,10 @@ defmodule Master.Constructor do
   @moduledoc"""
   DSPS master node starter
   """
-  use Application
   @name __MODULE__
 
-  def start(_args, _opts) do
+  use Supervisor
+  def start_link(_args) do
     children = [
       { Cluster.Orchestrer, []},
       { Cluster.Sharders.Dsupervisor, []},
@@ -15,6 +15,17 @@ defmodule Master.Constructor do
       
     ]
     opts = [strategy: :one_for_one, name: @name]
-    Supervisor.start_link(children, opts)
+    # Save the results
+    res = Supervisor.start_link(children, opts)
+    # Connect to workers
+    Cluster.Orchestrer.connect_nodes
+    # Start a sharder
+    Cluster.Sharders.Dsupervisor.start_cluster_sharder("1")
+    # Sleep one second
+    :timer.sleep(1000)
+    # Init Rabin-Karp workers on all nodes
+    2..125 |> Enum.reduce(Map.new, fn x, acc ->Map.put(acc, x, 1000) end) |> Cluster.Orchestrer.init_workers
+    # callback the results
+    res
   end
 end

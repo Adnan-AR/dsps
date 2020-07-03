@@ -17,8 +17,9 @@ defmodule Dsps.MixProject do
 	dsps: [
 	  applications: [runtime_tools: :permanent],
 	  # Add runtime configuration (provide path to YAML file)
-	  config_providers: [{ConfigHandler,
-			      System.get_env("NODE_CONFIG_PATH")}]
+	  config_providers: [
+	    {ConfigHandler, System.get_env("NODE_CONFIG_PATH")}
+	  ]
 	]
       ]
     ]

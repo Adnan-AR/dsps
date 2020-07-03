@@ -16,8 +16,7 @@ defmodule Helpers.ProcessesGetter do
     connected_nodes = Node.list
     |> Enum.map(fn x -> Atom.to_string x end)
     |> MapSet.new
-    Application.fetch_env!(:dsps, "nodes.worker")
-    |> Map.fetch!(:workers)
+    Application.get_env(:dsps, :workers)
     |> MapSet.new
     |> MapSet.intersection(connected_nodes)
     |> MapSet.to_list

@@ -33,7 +33,7 @@ ips=(
     #ec2-user@ec2-15-188-33-252.eu-west-3.compute.amazonaws.com
     #ec2-user@ec2-52-47-78-5.eu-west-3.compute.amazonaws.com
     ec2-user@ec2-52-47-82-122.eu-west-3.compute.amazonaws.com
-    ec2-user@ec2-15-188-193-143.eu-west-3.compute.amazonaws.com
+    #ec2-user@ec2-15-188-193-143.eu-west-3.compute.amazonaws.com
     #ec2-user@ec2-35-180-83-35.eu-west-3.compute.amazonaws.com
 )
 for ip in "${ips[@]}"; do

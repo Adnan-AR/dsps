@@ -2,10 +2,10 @@ defmodule Client.Constructor do
   @moduledoc"""
   DSPS client node starter
   """
-  use Application
+  use Supervisor
   @name __MODULE__
 
-  def start(_args, _opts) do
+  def start_link(_args) do
     children = [
       { Client.EndPoint, []}
     ]

@@ -2,10 +2,10 @@ defmodule Workers.Constructor do
   @moduledoc"""
   DSPS workers constructor: start them in dynamic supervisor env
   """
-  use Application
   @name __MODULE__
+  use Supervisor
 
-  def start(_args, _opts) do
+  def start_link(_args) do
     children = [
       { StringMatching.Dsupervisor, []},
       { StringMatching.Sharder, []},
